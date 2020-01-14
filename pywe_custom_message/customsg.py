@@ -90,15 +90,6 @@ class CustomMessage(BaseToken):
         )
 
     def send_custom_text_message(self, openid=None, content=None, appid=None, secret=None, token=None, storage=None):
-        return self.send_custom_message({
-            'touser': openid,
-            'msgtype': 'text',
-            'text': {
-                'content': content,
-            },
-        }, appid=appid, secret=secret, token=token, storage=storage)
-
-    def send_custom_text_message(self, openid=None, content=None, appid=None, secret=None, token=None, storage=None):
         """
         发送文本消息时，支持插入跳小程序的文字链
 
@@ -191,6 +182,17 @@ class CustomMessage(BaseToken):
             },
         }, appid=appid, secret=secret, token=token, storage=storage)
 
+    def send_custom_msgmenu_message(self, openid=None, head_content=None, menulist=None, tail_content=None, msgmenu=None, appid=None, secret=None, token=None, storage=None):
+        return self.send_custom_message({
+            'touser': openid,
+            'msgtype': 'msgmenu',
+            'msgmenu': msgmenu or {
+                'head_content': head_content,
+                'list': menulist,
+                'tail_content': tail_content,
+            },
+        }, appid=appid, secret=secret, token=token, storage=storage)
+
     def send_custom_card_message(self, openid=None, card_id=None, appid=None, secret=None, token=None, storage=None):
         return self.send_custom_message({
             'touser': openid,
@@ -200,18 +202,20 @@ class CustomMessage(BaseToken):
             },
         }, appid=appid, secret=secret, token=token, storage=storage)
 
-    def send_custom_wxa_message(self, openid=None, miniappid=None, pagepath=None, thumb_media_id=None, title=None, appid=None, secret=None, token=None, storage=None):
-        data = {
-            'appid': miniappid,
-            'pagepath': pagepath,
-            'thumb_media_id': thumb_media_id,
-        }
-        if title:
-            data['title'] = title
+    def send_custom_wxa_message(self, openid=None, miniappid=None, pagepath=None, thumb_media_id=None, title=None, miniprogrampage=None, appid=None, secret=None, token=None, storage=None):
+        """ 发送小程序卡片（要求小程序与公众号已关联） """
+        if not miniprogrampage:
+            miniprogrampage = {
+                'appid': miniappid,
+                'pagepath': pagepath,
+                'thumb_media_id': thumb_media_id,
+            }
+            if title:
+                miniprogrampage['title'] = title
         return self.send_custom_message({
             'touser': openid,
             'msgtype': 'miniprogrampage',
-            'miniprogrampage': data,
+            'miniprogrampage': miniprogrampage,
         }, appid=appid, secret=secret, token=token, storage=storage)
 
     def custom_typing(self, openid=None, typing=True, appid=None, secret=None, token=None, storage=None):
@@ -240,6 +244,7 @@ send_custom_voice_message = tmpmsg.send_custom_voice_message
 send_custom_video_message = tmpmsg.send_custom_video_message
 send_custom_news_message = send_custom_articles_message = tmpmsg.send_custom_news_message
 send_custom_mpnews_message = tmpmsg.send_custom_mpnews_message
+send_custom_msgmenu_message = tmpmsg.send_custom_msgmenu_message
 send_custom_card_message = tmpmsg.send_custom_card_message
 send_custom_wxa_message = tmpmsg.send_custom_wxa_message
 custom_typing = tmpmsg.custom_typing
